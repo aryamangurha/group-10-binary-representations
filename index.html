@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IDS Group 10 | Binary Queue | IIM Jammu</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --brown:       #3b2212;
+    --brown-mid:   #5a3520;
+    --brown-light: #7a5035;
+    --cream:       #f5f0e8;
+    --cream-dark:  #ede6d8;
+    --cream-mid:   #e4d9c8;
+    --text:        #2a1a0e;
+    --muted:       #7a6050;
+    --border:      rgba(59,34,18,0.15);
+    --border-strong: rgba(59,34,18,0.3);
+    --accent:      #3b2212;
+    --cell-q:      rgba(59,34,18,0.07);
+    --cell-front:  rgba(90,53,32,0.18);
+    --cell-new:    rgba(160,100,40,0.18);
+    --cell-res:    rgba(59,34,18,0.12);
+  }
+
+  body {
+    background: var(--cream);
+    color: var(--text);
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 16px;
+    line-height: 1.8;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--brown);
+    color: var(--cream);
+    padding: 0 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  }
+
+  .site-title {
+    font-size: 14px;
+    letter-spacing: 0.06em;
+    font-style: italic;
+    opacity: 0.85;
+  }
+
+  /* ── TABS ── */
+  nav {
+    display: flex;
+    gap: 0;
+  }
+
+  .tab-btn {
+    background: transparent;
+    border: none;
+    color: rgba(245,240,232,0.6);
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 14px;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    padding: 0 24px;
+    height: 60px;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+  }
+
+  .tab-btn:hover { color: var(--cream); }
+
+  .tab-btn.active {
+    color: var(--cream);
+    border-bottom-color: #c8a060;
+  }
+
+  /* ── PAGES ── */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── REPORT PAGE ── */
+  .report-wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 56px 40px 100px;
+  }
+
+  .cover {
+    text-align: center;
+    padding: 48px 0 56px;
+    border-bottom: 1.5px solid var(--border-strong);
+    margin-bottom: 56px;
+  }
+
+  .cover-institution {
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--brown-mid);
+    margin-bottom: 24px;
+  }
+
+  .cover-rule {
+    width: 60px;
+    height: 1.5px;
+    background: var(--brown-light);
+    margin: 0 auto 24px;
+  }
+
+  .cover h1 {
+    font-size: 22px;
+    font-weight: bold;
+    color: var(--brown);
+    letter-spacing: 0.04em;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+
+  .cover-sub {
+    font-size: 15px;
+    color: var(--brown-mid);
+    font-style: italic;
+    margin-bottom: 36px;
+  }
+
+  .cover-meta {
+    display: inline-block;
+    text-align: left;
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 2;
+  }
+
+  .cover-meta strong { color: var(--text); }
+
+  .members-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 28px;
+    font-size: 14px;
+  }
+
+  .members-table th {
+    background: var(--brown);
+    color: var(--cream);
+    padding: 10px 18px;
+    text-align: left;
+    font-weight: normal;
+    letter-spacing: 0.05em;
+  }
+
+  .members-table td {
+    padding: 9px 18px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+
+  .members-table tr:last-child td { border-bottom: none; }
+  .members-table tbody tr:nth-child(even) td { background: var(--cream-dark); }
+
+  /* sections */
+  .report-section { margin-bottom: 44px; }
+
+  .section-num {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--brown-light);
+    margin-bottom: 6px;
+  }
+
+  h2.section-title {
+    font-size: 19px;
+    font-weight: bold;
+    color: var(--brown);
+    border-bottom: 1.5px solid var(--border-strong);
+    padding-bottom: 8px;
+    margin-bottom: 20px;
+  }
+
+  h3.sub-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--brown-mid);
+    margin: 24px 0 10px;
+  }
+
+  p { margin-bottom: 16px; color: var(--text); }
+
+  .code-block {
+    background: var(--brown);
+    color: #e8dfc8;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    padding: 24px 28px;
+    border-radius: 2px;
+    overflow-x: auto;
+    margin: 20px 0;
+    white-space: pre;
+  }
+
+  ul.report-list {
+    padding-left: 28px;
+    margin-bottom: 16px;
+  }
+
+  ul.report-list li {
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+
+  ul.report-list li strong { color: var(--brown-mid); }
+
+  .complexity-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    margin: 20px 0;
+  }
+
+  .complexity-table th {
+    background: var(--brown);
+    color: var(--cream);
+    padding: 10px 16px;
+    text-align: left;
+    font-weight: normal;
+    letter-spacing: 0.04em;
+  }
+
+  .complexity-table td {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+
+  .complexity-table tbody tr:nth-child(even) td { background: var(--cream-dark); }
+  .complexity-table .mono { font-family: 'Courier New', monospace; font-weight: bold; color: var(--brown); }
+
+  .ref-list { padding-left: 20px; }
+  .ref-list li { font-size: 14px; color: var(--muted); margin-bottom: 10px; line-height: 1.6; }
+
+  /* ── APP PAGE ── */
+  .app-wrap {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 56px 40px 100px;
+  }
+
+  .app-page-title {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--brown-light);
+    margin-bottom: 8px;
+  }
+
+  .app-page-h1 {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--brown);
+    margin-bottom: 10px;
+  }
+
+  .app-page-desc {
+    font-size: 15px;
+    color: var(--muted);
+    font-style: italic;
+    max-width: 620px;
+    margin-bottom: 40px;
+    line-height: 1.7;
+  }
+
+  /* visualizer card */
+  .viz-card {
+    background: var(--cream-dark);
+    border: 1px solid var(--border-strong);
+    border-radius: 2px;
+    padding: 32px 32px 28px;
+    margin-bottom: 12px;
+  }
+
+  .viz-card-label {
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+
+  .slider-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+
+  .slider-lbl {
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  input[type=range] {
+    flex: 1;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 2px;
+    background: var(--border-strong);
+    border-radius: 2px;
+    outline: none;
+  }
+
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--brown);
+    cursor: pointer;
+  }
+
+  .n-val {
+    font-family: 'Courier New', monospace;
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--brown);
+    min-width: 22px;
+    text-align: right;
+  }
+
+  .struct-lbl {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  .cells-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    min-height: 44px;
+    align-items: center;
+    margin-bottom: 22px;
+  }
+
+  .cell {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 6px 13px;
+    border: 1px solid;
+    border-radius: 1px;
+    transition: all 0.18s;
+    white-space: nowrap;
+  }
+
+  .cell-front  { background: var(--cell-front); color: var(--brown); border-color: var(--brown-light); }
+  .cell-queue  { background: var(--cell-q); color: var(--brown-mid); border-color: var(--border-strong); }
+  .cell-new    { background: var(--cell-new); color: #7a4800; border-color: #c08030; }
+  .cell-result { background: var(--cell-res); color: var(--brown); border-color: var(--brown-mid); }
+  .cell-empty  { font-style: italic; font-size: 12px; color: var(--muted); font-family: 'Times New Roman', serif; }
+
+  .viz-divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+
+  .log-box {
+    font-family: 'Courier New', monospace;
+    font-size: 12.5px;
+    color: var(--muted);
+    line-height: 1.65;
+    padding: 10px 16px;
+    background: var(--cream);
+    border: 1px solid var(--border-strong);
+    border-radius: 1px;
+    min-height: 40px;
+    margin-bottom: 18px;
+  }
+
+  .log-box .hi  { color: var(--brown); font-weight: bold; }
+  .log-box .hy  { color: #7a4800; font-weight: bold; }
+  .log-box .hg  { color: #2a5a20; font-weight: bold; }
+
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  button {
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 13px;
+    padding: 8px 22px;
+    border: 1px solid var(--border-strong);
+    background: var(--cream);
+    color: var(--brown);
+    cursor: pointer;
+    border-radius: 1px;
+    letter-spacing: 0.03em;
+    transition: all 0.15s;
+  }
+
+  button:hover { background: var(--cream-mid); }
+  button:active { transform: scale(0.98); }
+  button:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  button.primary {
+    background: var(--brown);
+    color: var(--cream);
+    border-color: var(--brown);
+  }
+
+  button.primary:hover { background: var(--brown-mid); }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 20px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11px;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  .ldot {
+    width: 10px;
+    height: 10px;
+    border-radius: 1px;
+    border: 1px solid;
+    display: inline-block;
+  }
+
+  .done-bar {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: #2a5a20;
+    background: rgba(42,90,32,0.08);
+    border: 1px solid rgba(42,90,32,0.25);
+    border-radius: 1px;
+    padding: 8px 16px;
+    margin-top: 14px;
+    display: none;
+  }
+
+  /* other applications section */
+  .app-section-break {
+    border: none;
+    border-top: 1.5px solid var(--border-strong);
+    margin: 56px 0 48px;
+  }
+
+  .app-section-title {
+    font-size: 19px;
+    font-weight: bold;
+    color: var(--brown);
+    margin-bottom: 32px;
+  }
+
+  .app-item {
+    display: grid;
+    grid-template-columns: 36px 1fr;
+    gap: 0 20px;
+    margin-bottom: 36px;
+    padding-bottom: 36px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .app-item:last-child { border-bottom: none; }
+
+  .app-num {
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    font-weight: bold;
+    color: var(--brown-light);
+    padding-top: 3px;
+  }
+
+  .app-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--brown);
+    margin-bottom: 10px;
+  }
+
+  .app-text {
+    font-size: 15px;
+    color: var(--text);
+    line-height: 1.8;
+  }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--cream-dark); }
+  ::-webkit-scrollbar-thumb { background: var(--brown-light); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="site-title">Introduction to Data Structures | Group 10 | IIM Jammu</span>
+  <nav>
+    <button class="tab-btn active" onclick="switchTab('report', this)">Report</button>
+    <button class="tab-btn" onclick="switchTab('app', this)">Application of Code</button>
+  </nav>
+</header>
+
+<!-- ══════════════════════════════════════════ REPORT TAB ══ -->
+<div id="page-report" class="page active">
+<div class="report-wrap">
+
+  <!-- cover -->
+  <div class="cover">
+    <div class="cover-institution">Indian Institute of Management Jammu</div>
+    <div class="cover-rule"></div>
+    <h1>Introduction to Data Structures</h1>
+    <div class="cover-sub">Project Report</div>
+    <div class="cover-meta">
+      <div><strong>Course:</strong> Introduction to Data Structures</div>
+      <div><strong>Faculty:</strong> Dr. Chinmaya Kumar Swain</div>
+      <div><strong>Group:</strong> Group 10</div>
+      <div><strong>Topic:</strong> Given an integer n, generate the binary representations of all numbers from 1 to n</div>
+    </div>
+    <table class="members-table" style="margin-top:32px">
+      <thead>
+        <tr><th>Name</th><th>Roll Number</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Ishaan Goyal</td><td>IPM25062</td></tr>
+        <tr><td>Arnav Goyal</td><td>IPM25029</td></tr>
+        <tr><td>Aryaman Gurha</td><td>IPM25034</td></tr>
+        <tr><td>Pratham Batra</td><td>IPM25098</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 1. Introduction -->
+  <div class="report-section">
+    <div class="section-num">Section 1</div>
+    <h2 class="section-title">Introduction</h2>
+    <p>Data structures form the backbone of efficient algorithm design, and among the most fundamental is the Queue, a linear structure that operates on the First-In, First-Out (FIFO) principle. Much like a line of people waiting, the first person to join is the first to be served. This project uses that simple idea to solve a concrete problem: generating the binary representations of all integers from 1 to n.</p>
+    <p>Binary numbers are not just a classroom concept. They are literally how computers think. Every piece of data a computer handles, from text to images to instructions, is ultimately stored as sequences of 0s and 1s. Being able to generate those sequences systematically and in order is a problem with real relevance.</p>
+    <p>The most straightforward way to convert a number to binary involves dividing it by 2 repeatedly and tracking the remainders. It works, but it handles each number on its own, with no connection to the ones before or after it. The approach this project takes is different: instead of calculating each binary number from scratch, the algorithm grows each new binary number from the previous one by simply appending a 0 or a 1. The Queue is what keeps everything in order, ensuring that numbers are processed in sequence without any extra sorting or bookkeeping.</p>
+    <p>To make this algorithm more tangible, an interactive visualizer was built alongside the implementation. It allows a user to set any value of n, step through the algorithm one iteration at a time, and observe the queue state at each step, including which element is dequeued, which two elements are enqueued, and how the result array builds up in real time. This makes the underlying logic of the Queue directly observable rather than purely theoretical.</p>
+    <p>The result is a clean, efficient algorithm that runs in O(n) time and O(n) space. More importantly, it is a good example of how choosing the right data structure can turn a complicated-looking problem into something surprisingly simple. The rest of this report walks through the logic, the code, and the real-world applications of this approach.</p>
+  </div>
+
+  <!-- 2. Code -->
+  <div class="report-section">
+    <div class="section-num">Section 2</div>
+    <h2 class="section-title">Algorithm and Code Implementation</h2>
+    <h3 class="sub-title">2.1 Python Implementation</h3>
+    <p>The following Python code demonstrates the Queue-based binary number generation algorithm:</p>
+    <div class="code-block">from collections import deque
+
+def generate_binary_with_queue(n):
+    # Initialize a Queue data structure
+    queue = deque()
+    queue.append("1")
+
+    # Initialize an Array to store the final result
+    result_array = []
+
+    for i in range(n):
+        # 1. Dequeue the front element
+        current_binary = queue.popleft()
+
+        # 2. Store it in our Array
+        result_array.append(current_binary)
+
+        # 3. Generate the next logical numbers and Enqueue them
+        queue.append(current_binary + "0")
+        queue.append(current_binary + "1")
+
+    return result_array
+
+# Get user input
+n = int(input("Enter a number: "))
+stored_binaries = generate_binary_with_queue(n)
+
+for binary in stored_binaries:
+    print(binary)</div>
+  </div>
+
+  <!-- 3. Logic -->
+  <div class="report-section">
+    <div class="section-num">Section 3</div>
+    <h2 class="section-title">Line-by-Line Logic Explanation</h2>
+    <p>The following section provides a detailed breakdown of how the Queue-based approach works. This algorithm is powerful because it uses the FIFO (First-In-First-Out) nature of a Queue to build the sequence naturally, without performing any actual division or mathematical conversion.</p>
+
+    <h3 class="sub-title">3.1 Setup and Initialization</h3>
+    <p>The algorithm begins by importing Python's built-in deque (Double-Ended Queue) from the collections module. While a standard list could be used, deque is optimized for constant-time O(1) additions and removals from both ends. In this algorithm, it is used strictly as a standard Queue, where elements enter at the back and exit from the front.</p>
+    <p>Upon initialization, the Queue is seeded with the string "1", which serves as the foundational building block for all binary numbers. An empty list called result_array is also created to permanently store the generated binary numbers as they are produced.</p>
+
+    <h3 class="sub-title">3.2 The Main Loop</h3>
+    <p>Since the user requests n binary numbers, the main loop runs exactly n times. Each iteration of the loop processes one complete binary number from start to finish. The key operations within each iteration are:</p>
+    <ul class="report-list">
+      <li><strong>Dequeue:</strong> The front element of the Queue is removed using popleft() and stored in the variable current_binary. Because the Queue is FIFO, this always retrieves the next number in sequential order.</li>
+      <li><strong>Store:</strong> The dequeued binary string (current_binary) is immediately appended to result_array for permanent storage.</li>
+      <li><strong>Enqueue:</strong> Two new binary strings are generated by appending "0" and "1" to current_binary, and both are added to the back of the Queue. This ensures that the children of every binary number are generated and queued in proper order.</li>
+    </ul>
+
+    <h3 class="sub-title">3.3 Generating the Next Sequence</h3>
+    <p>This is the core mechanism of the algorithm. Every binary number generates the next two binary numbers in the sequence by appending a 0 and a 1 to itself. For example, processing "1" produces "10" and "11"; processing "10" produces "100" and "101", and so on. Because "10" is enqueued before "11", the Queue guarantees that "10" will be processed before "11" in subsequent iterations, maintaining perfect sequential order without any sorting.</p>
+
+    <h3 class="sub-title">3.4 Finishing Up and I/O</h3>
+    <p>Once the loop has completed n iterations, result_array contains exactly n binary strings in sequential order. The function returns this array to the caller. The main script handles standard I/O: it captures the user's integer input, passes it to the function, and iterates through the result array to print each binary string on a new line.</p>
+  </div>
+
+  <!-- 4. Applications -->
+  <div class="report-section">
+    <div class="section-num">Section 4</div>
+    <h2 class="section-title">Real-World Applications of the Queue Data Structure</h2>
+    <p>The Queue-based binary generation algorithm described in this project is not merely an academic exercise. The Queue as a data structure, and the binary generation pattern in particular, appears in numerous practical computing systems. Three significant applications are described below.</p>
+
+    <h3 class="sub-title">Application 01: Huffman Encoding in File Compression</h3>
+    <p>When a file is compressed using formats such as ZIP or PNG, the underlying algorithm assigns shorter binary codes to characters that appear more frequently and longer codes to those that appear less often. This process, known as Huffman Encoding, requires generating and traversing a tree of binary codes in a level-by-level (breadth-first) order, which is precisely what a Queue enables.</p>
+    <p>The same logic used in this project's algorithm, where each node generates two children by appending a 0 and a 1, mirrors how a Huffman tree is built and traversed. Every time a file is compressed on a computer or a compressed image is sent over the internet, a Queue-based binary generation process similar to this algorithm is working underneath.</p>
+
+    <h3 class="sub-title">Application 02: IP Address Allocation in Networking</h3>
+    <p>In computer networks, IP address spaces are divided into subnets using binary representations of addresses. Network administrators and routing protocols must systematically enumerate all possible binary addresses within a given range in order to allocate them to devices, check for conflicts, or configure routing tables.</p>
+    <p>The Queue-based approach in this project directly models this need: starting from a root and expanding outward in order, it generates every binary string up to a given length in sequence. The FIFO property of the Queue ensures that addresses are generated in the correct hierarchical order, which is essential for subnet management.</p>
+
+    <h3 class="sub-title">Application 03: Binary Code Generation in Error Detection Systems</h3>
+    <p>Systems such as QR codes, barcodes, and satellite communication protocols rely on structured binary sequences for error detection and correction. These systems must generate all possible binary patterns of a given length to build lookup tables, detect corrupted bits, or verify transmitted data.</p>
+    <p>This algorithm is well suited for this purpose because it generates every binary representation in order without repetition or gaps, using the Queue to ensure a clean, sequential output. The algorithm's O(n) efficiency ensures that even large sets of binary codes can be generated quickly and predictably.</p>
+  </div>
+
+  <!-- 5. Complexity -->
+  <div class="report-section">
+    <div class="section-num">Section 5</div>
+    <h2 class="section-title">Complexity Analysis</h2>
+    <p>A formal analysis of the algorithm's computational complexity demonstrates its efficiency and suitability for practical use.</p>
+    <table class="complexity-table">
+      <thead>
+        <tr><th>Metric</th><th>Value</th><th>Explanation</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Time Complexity</strong></td>
+          <td><span class="mono">O(n)</span></td>
+          <td>Each of the n binary numbers is processed exactly once in the loop. No nested iterations or repeated computations are required.</td>
+        </tr>
+        <tr>
+          <td><strong>Space Complexity</strong></td>
+          <td><span class="mono">O(n)</span></td>
+          <td>The result_array stores n elements. The queue also holds at most O(n) elements at any point during execution.</td>
+        </tr>
+        <tr>
+          <td><strong>Dequeue Operation</strong></td>
+          <td><span class="mono">O(1)</span></td>
+          <td>The popleft() operation on a deque runs in constant time, making the Queue highly efficient for this pattern.</td>
+        </tr>
+        <tr>
+          <td><strong>Enqueue Operation</strong></td>
+          <td><span class="mono">O(1)</span></td>
+          <td>Each append() to the deque also runs in constant time, contributing no overhead per iteration.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 6. Conclusion -->
+  <div class="report-section">
+    <div class="section-num">Section 6</div>
+    <h2 class="section-title">Conclusion</h2>
+    <p>This project demonstrates how a fundamental data structure, the Queue, can be applied elegantly to solve the problem of generating binary representations of integers from 1 to n. Rather than converting each number independently using division-based methods, the Queue-based algorithm leverages the FIFO property to build each binary number incrementally from its predecessor, producing all n results in a single O(n) pass.</p>
+    <p>The implementation is clean, efficient, and easy to reason about. The interactive visualizer built alongside the algorithm makes the Queue's behavior directly observable, reinforcing the connection between data structure theory and practical computation. The three real-world applications discussed, namely Huffman Encoding, IP address allocation, and error detection systems, illustrate that this is not merely an academic exercise but a pattern that appears throughout modern computing.</p>
+    <p>Ultimately, this project is a strong illustration of a broader principle in computer science: the right choice of data structure does not merely make a solution faster; it can make the problem itself easier to understand and solve. The Queue is the natural fit for this problem, and this project shows why.</p>
+  </div>
+
+  <!-- References -->
+  <div class="report-section">
+    <div class="section-num">References</div>
+    <h2 class="section-title">References</h2>
+    <ol class="ref-list">
+      <li>Cormen, T. H., Leiserson, C. E., Rivest, R. L., &amp; Stein, C. (2009). <em>Introduction to Algorithms</em> (3rd ed.). MIT Press.</li>
+      <li>Python Software Foundation. (2024). collections.deque, Python 3 Documentation. https://docs.python.org/3/library/collections.html#collections.deque</li>
+      <li>Huffman, D. A. (1952). A method for the construction of minimum-redundancy codes. <em>Proceedings of the IRE, 40</em>(9), 1098–1101.</li>
+      <li>Tanenbaum, A. S., &amp; Wetherall, D. J. (2011). <em>Computer Networks</em> (5th ed.). Pearson Education.</li>
+      <li>Sedgewick, R., &amp; Wayne, K. (2011). <em>Algorithms</em> (4th ed.). Addison-Wesley.</li>
+    </ol>
+  </div>
+
+</div>
+</div>
+
+<!-- ═════════════════════════════════════════ APPLICATION TAB ═ -->
+<div id="page-app" class="page">
+<div class="app-wrap">
+
+  <div class="app-page-title">Application Project</div>
+  <h1 class="app-page-h1">Binary Queue Visualizer</h1>
+  <p class="app-page-desc">An interactive step-by-step demonstration of the Queue-based binary generation algorithm from our code. Set a value for n, then step through the algorithm to observe how the queue state evolves at each iteration, directly illustrating the FIFO logic in action.</p>
+
+  <div class="viz-card">
+    <div class="viz-card-label">Interactive Visualizer: Queue-Based Binary Generation</div>
+
+    <div class="slider-row">
+      <span class="slider-lbl">n =</span>
+      <input type="range" min="1" max="15" value="7" id="n-slider" oninput="resetViz()">
+      <span class="n-val" id="n-label">7</span>
+    </div>
+
+    <div class="struct-lbl">Queue</div>
+    <div class="cells-row" id="queue-display"></div>
+
+    <hr class="viz-divider">
+
+    <div class="struct-lbl">Result Array</div>
+    <div class="cells-row" id="result-display"></div>
+
+    <hr class="viz-divider">
+
+    <div class="log-box" id="log">Queue initialized with seed <span class="hi">"1"</span> : press <em>Next Step</em> to begin.</div>
+
+    <div class="btn-row">
+      <button class="primary" onclick="stepForward()" id="btn-step">Next Step</button>
+      <button onclick="runAll()" id="btn-run">Run All</button>
+      <button onclick="resetViz()">Reset</button>
+    </div>
+
+    <div class="done-bar" id="done-bar">All <span id="done-n"></span> binary numbers generated successfully.</div>
+
+    <div class="legend">
+      <span class="legend-item"><span class="ldot" style="background:var(--cell-front);border-color:var(--brown-light)"></span>Front of queue (next to dequeue)</span>
+      <span class="legend-item"><span class="ldot" style="background:var(--cell-q);border-color:var(--border-strong)"></span>Queued</span>
+      <span class="legend-item"><span class="ldot" style="background:var(--cell-new);border-color:#c08030"></span>Newly enqueued</span>
+      <span class="legend-item"><span class="ldot" style="background:var(--cell-res);border-color:var(--brown-mid)"></span>Result</span>
+    </div>
+  </div>
+
+  <hr class="app-section-break">
+
+  <h2 class="app-section-title">Other Applications of the Data Structure</h2>
+
+  <div class="app-item">
+    <div class="app-num">01</div>
+    <div>
+      <div class="app-title">Huffman Encoding in File Compression</div>
+      <p class="app-text">When you compress a file using formats like ZIP or PNG, the underlying algorithm assigns shorter binary codes to characters that appear more frequently and longer codes to those that appear less often. This process, known as Huffman Encoding, requires generating and traversing a tree of binary codes in a level-by-level order, which is exactly what a Queue enables. The same logic used in our algorithm, where each node generates two children by appending a 0 and a 1, mirrors how a Huffman tree is built and traversed. Every time you compress a file on your computer or send a compressed image, a Queue-based binary generation process similar to ours is working underneath.</p>
+    </div>
+  </div>
+
+  <div class="app-item">
+    <div class="app-num">02</div>
+    <div>
+      <div class="app-title">IP Address Allocation in Networking</div>
+      <p class="app-text">In computer networks, IP address spaces are divided into subnets using binary representations of addresses. Network administrators and routing protocols need to systematically enumerate all possible binary addresses within a given range to allocate them to devices, check for conflicts, or configure routing tables. The Queue-based approach in our project directly models this: starting from a root and expanding outward in order, it generates every binary string up to a given length in sequence. Tools that manage network address pools use this exact kind of structured binary enumeration to assign and track addresses efficiently.</p>
+    </div>
+  </div>
+
+  <div class="app-item">
+    <div class="app-num">03</div>
+    <div>
+      <div class="app-title">Binary Code Generation in Error Detection Systems</div>
+      <p class="app-text">Systems like QR codes, barcodes, and satellite communication protocols rely on structured binary sequences for error detection and correction. These systems need to generate all possible binary patterns of a given length to build lookup tables, detect corrupted bits, or verify transmitted data. Our algorithm is well suited for this because it generates every binary representation in order without repetition or gaps, using the Queue to ensure a clean, sequential output. In hardware diagnostics and communication systems, this kind of exhaustive binary generation is a standard step in building reliable error-checking mechanisms.</p>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script>
+  // ── tab switching
+  function switchTab(id, btn) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('page-' + id).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  // ── visualizer
+  let queue = [], result = [], n = 7, step = 0, lastNew = [];
+
+  function resetViz() {
+    n = parseInt(document.getElementById('n-slider').value);
+    document.getElementById('n-label').textContent = n;
+    queue = ['1']; result = []; step = 0; lastNew = [];
+    document.getElementById('done-bar').style.display = 'none';
+    document.getElementById('btn-step').disabled = false;
+    document.getElementById('btn-run').disabled = false;
+    document.getElementById('log').innerHTML = 'Queue initialized with seed <span class="hi">"1"</span> : press <em>Next Step</em> to begin.';
+    render();
+  }
+
+  function stepForward() {
+    if (step >= n) return;
+    const cur = queue.shift();
+    result.push(cur);
+    const c0 = cur + '0', c1 = cur + '1';
+    queue.push(c0); queue.push(c1);
+    lastNew = [c0, c1];
+    step++;
+    document.getElementById('log').innerHTML =
+      `Step ${step}/${n}: dequeued <span class="hi">"${cur}"</span> &rarr; stored in result &bull; enqueued <span class="hy">"${c0}"</span> and <span class="hy">"${c1}"</span>`;
+    if (step >= n) {
+      document.getElementById('done-bar').style.display = 'block';
+      document.getElementById('done-n').textContent = n;
+      document.getElementById('btn-step').disabled = true;
+      document.getElementById('btn-run').disabled = true;
+    }
+    render();
+  }
+
+  function runAll() { while (step < n) stepForward(); }
+
+  function render() {
+    const qd = document.getElementById('queue-display');
+    qd.innerHTML = '';
+    if (!queue.length) {
+      qd.innerHTML = '<span class="cell-empty">empty</span>';
+    } else {
+      queue.forEach((val, i) => {
+        const el = document.createElement('div');
+        const isNew = step > 0 && i >= queue.length - 2;
+        el.className = 'cell ' + (i === 0 ? 'cell-front' : isNew ? 'cell-new' : 'cell-queue');
+        el.textContent = val;
+        qd.appendChild(el);
+      });
+    }
+    const rd = document.getElementById('result-display');
+    rd.innerHTML = '';
+    if (!result.length) {
+      rd.innerHTML = '<span class="cell-empty">empty</span>';
+    } else {
+      result.forEach(val => {
+        const el = document.createElement('div');
+        el.className = 'cell cell-result';
+        el.textContent = val;
+        rd.appendChild(el);
+      });
+    }
+  }
+
+  resetViz();
+</script>
+</body>
+</html>
