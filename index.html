@@ -885,6 +885,11 @@ for binary in stored_binaries:
     const btns = document.querySelectorAll('.tab-btn');
     if (id === 'report') btns[0].classList.add('active');
     if (id === 'app') btns[1].classList.add('active');
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      const target = document.getElementById('page-' + id);
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 30);
   }
 
   function switchTab(id, btn) {
